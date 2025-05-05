@@ -1,0 +1,6 @@
+.venv/
+build/
+dist/
+toBeDiffChecked/*.*
+differenzen.txt
+ExcelDiffChecker.spec

@@ -1,6 +1,7 @@
 .venv/
 build/
 dist/
-toBeDiffChecked/*.*
+toBeDiffChecked/*
+!toBeDiffChecked
 differenzen.txt
 ExcelDiffChecker.spec

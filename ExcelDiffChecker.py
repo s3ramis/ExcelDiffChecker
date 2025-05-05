@@ -3,11 +3,11 @@ import os
 from openpyxl.utils import get_column_letter
 
 def compare_excel_files(subdir, output_filename):
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # Basisverzeichnis des Projekts
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     subdir_path = os.path.join(base_dir, subdir)
     output_file = os.path.join(base_dir, output_filename)
     
-    # Alle Excel-Dateien im Verzeichnis einlesen
+    # input excel files
     excel_files = [f for f in os.listdir(subdir_path) if f.endswith(".xlsx")]
     
     if len(excel_files) != 2:
@@ -16,29 +16,30 @@ def compare_excel_files(subdir, output_filename):
     file1_path = os.path.join(subdir_path, excel_files[0])
     file2_path = os.path.join(subdir_path, excel_files[1])
     
-    # Nutzer gibt auszuschließende Zeilen und Spalten ein
+    # input rows/columns to be ignored
     exclude_rows = input("Welche Zeilen sollen ausgeschlossen werden? (z.B. 1,3,5): ")
     exclude_cols = input("Welche Spalten sollen ausgeschlossen werden? (z.B. A,C,E): ")
     
     exclude_rows = set(map(int, exclude_rows.split(','))) if exclude_rows else set()
     exclude_cols = set(ord(c.upper()) - 65 for c in exclude_cols.split(',')) if exclude_cols else set()
     
-    # Beide Excel-Dateien einlesen
+    # read excel data
     df1 = pd.read_excel(file1_path, sheet_name=None, engine='openpyxl', header=None)
     df2 = pd.read_excel(file2_path, sheet_name=None, engine='openpyxl', header=None)
     
     with open(output_file, 'w') as f:
-        for sheet in df1.keys():  # Annahme: Beide Dateien haben dieselben Sheets
+        for sheet in df1.keys():
             if sheet not in df2:
                 f.write(f"Sheet {sheet} existiert nicht in {excel_files[1]}\n")
                 continue
             
-            sheet1 = df1[sheet].fillna('')  # NaN-Werte durch leeren String ersetzen
+            sheet1 = df1[sheet].fillna('')  # replace cells that contain no value with empty string
             sheet2 = df2[sheet].fillna('')
             
             max_rows = max(sheet1.shape[0], sheet2.shape[0])
             max_cols = max(sheet1.shape[1], sheet2.shape[1])
             
+            # comparing logic
             for row in range(max_rows):
                 if row + 1 in exclude_rows:
                     continue
@@ -52,7 +53,7 @@ def compare_excel_files(subdir, output_filename):
                     
                     if value1 != value2:
                         cell = f"{get_column_letter(col + 1)}{row + 1}"
-                        f.write(f"{cell}: difference = {value1} -> {value2}\n")
+                        f.write(f"{cell}: difference = {value1} -> {value2}\n") # write to file
     
     print(f"Vergleich abgeschlossen. Unterschiede gespeichert in {output_file}")
 
